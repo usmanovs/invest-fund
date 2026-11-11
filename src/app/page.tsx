@@ -1,6 +1,7 @@
 import { Calculator } from "@/components/sections/calculator";
 import { Comparison } from "@/components/sections/comparison";
 import { Faq } from "@/components/sections/faq";
+import { History } from "@/components/sections/history";
 import { Hero } from "@/components/sections/hero";
 import { HowItWorks } from "@/components/sections/how-it-works";
 import { Problem } from "@/components/sections/problem";
@@ -21,6 +22,7 @@ export default function Home() {
         <Solution />
         <HowItWorks />
         <Calculator />
+        <History />
         <Comparison />
         <WhyNotIb />
         <Survey />
