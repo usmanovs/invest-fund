@@ -1,36 +1,49 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Тамчы — лендинг для проверки спроса
 
-## Getting Started
+Русскоязычный лендинг концепции: простой сервис для инвестиций в индексные фонды США из Кыргызстана.
+Проект на стадии идеи — на сайте нет торговли, платежей и брокерских функций; он только объясняет
+идею, собирает опрос и лист ожидания. «Тамчы» — рабочее название, его легко заменить
+(`src/components/logo.tsx`, `src/app/layout.tsx`, футер).
 
-First, run the development server:
+## Стек
+
+Next.js 16 (App Router) · TypeScript · Tailwind CSS 4 · shadcn/ui · Recharts · Supabase
+
+## Запуск
 
 ```bash
+npm install
+cp .env.example .env.local   # и заполните значения
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Без переменных окружения сайт работает, но формы честно сообщают, что ответ не сохранён.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Supabase
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. Создайте проект в Supabase.
+2. Выполните `supabase/schema.sql` в SQL Editor.
+3. Скопируйте Project URL и publishable key в `.env.local` (и в переменные окружения хостинга).
 
-## Learn More
+Таблицы `waitlist` и `survey_responses` закрыты RLS без политик. Запись идёт только через функции
+`join_waitlist` и `submit_survey`, которые вызывает сервер (`src/app/api/*`). Читать ответы можно в
+панели Supabase (Table Editor).
 
-To learn more about Next.js, take a look at the following resources:
+## Защита от спама
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- скрытое поле-ловушка (honeypot);
+- проверка минимального времени заполнения формы;
+- ограничение частоты по IP (в памяти процесса);
+- валидация zod на клиенте и сервере, check-ограничения в базе;
+- повторная подписка с тем же email не создаёт дубликат.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Для серьёзного трафика стоит добавить Cloudflare Turnstile или аналог.
 
-## Deploy on Vercel
+## Структура
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```
+src/app/              страница, layout, API-маршруты (waitlist, survey)
+src/components/       секции страницы, формы, общие компоненты, ui (shadcn)
+src/lib/              расчёт калькулятора, валидация, варианты опроса, Supabase
+supabase/schema.sql   схема базы
+```
